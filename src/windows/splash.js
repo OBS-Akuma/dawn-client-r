@@ -6,8 +6,8 @@ const Store = require("electron-store");
 
 autoUpdater.setFeedURL({
   provider: "github",
-  owner: "zVipexx",
-  repo: "dawn-client",
+  owner: "OBS-Akuma",
+  repo: "dawn-client-r",
 });
 
 let splashWindow;
