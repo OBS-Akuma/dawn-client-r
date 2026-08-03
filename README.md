@@ -6,7 +6,7 @@
 
 # Dawn Client
 
-### An unofficial, feature-rich Electron client for Kirka.io
+### This is a unofficial fork of the client dawn, building it my way.
 
 <br />
 
