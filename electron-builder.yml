@@ -5,15 +5,18 @@ directories:
 npmRebuild: false
 asarUnpack:
   - "**/node_modules/ffmpeg-static/**"
+
 win:
   target:
     - target: nsis
-  icon: "src/assets/img/icon.png"
+  icon: "src/assets/img/icon.ico"
   artifactName: "${name}-setup-win-${version}.${ext}"
+
 mac:
   target: dmg
   icon: "src/assets/img/icon.icns"
   artifactName: "${name}-setup-mac-${version}.${ext}"
+
 linux:
   target:
     - AppImage
@@ -21,6 +24,7 @@ linux:
   category: Game
   icon: "src/assets/img/icon.png"
   artifactName: "${name}-${version}-linux-${arch}.${ext}"
+
 publish:
   - provider: github
     owner: zVipexx
