@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://i.imgur.com/PY7bWUX.png" width="120" height="120" alt="Dawn Client Logo" />
+<img src="https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/src/assets/img/icon.png" width="120" height="120" alt="Dawn Client Logo" />
 
 <br />
 
