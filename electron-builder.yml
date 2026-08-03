@@ -1,32 +1,86 @@
-appId: com.stinkyzvipexx.dawn
-productName: Dawn Client
-directories:
-  output: "build"
-npmRebuild: false
-asarUnpack:
-  - "**/node_modules/ffmpeg-static/**"
+name: Build and Release
 
-win:
-  target:
-    - target: nsis
-  icon: "src/assets/img/icon.ico"
-  artifactName: "${name}-setup-win-${version}.${ext}"
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
 
-mac:
-  target: dmg
-  icon: "src/assets/img/icon.icns"
-  artifactName: "${name}-setup-mac-${version}.${ext}"
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Create Windows ICO from PNG
+      run: |
+        npm install -D png-to-ico
+        npx png-to-ico src/assets/img/icon.png > src/assets/img/icon.ico
+      shell: bash
+      
+    - name: Verify ICO file
+      run: |
+        if (Test-Path src/assets/img/icon.ico) {
+          $fileInfo = Get-Item src/assets/img/icon.ico
+          Write-Host "ICO created: $($fileInfo.Length) bytes"
+        } else {
+          Write-Host "ICO not created BUHHH"
+          exit 1
+        }
+      shell: pwsh
+      
+    - name: Build Windows app
+      run: npx electron-builder --windows --x64 --publish always
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-linux:
-  target:
-    - AppImage
-    - tar.gz
-  category: Game
-  icon: "src/assets/img/icon.png"
-  artifactName: "${name}-${version}-linux-${arch}.${ext}"
+  build-macos:
+    runs-on: macos-15
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build macOS app
+      run: npx electron-builder --mac dmg --x64 --publish always
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-publish:
-  - provider: github
-    owner: OBS-Akuma
-    repo: dawn-client-r
-    releaseType: release
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build Linux app
+      run: npx electron-builder --linux AppImage tar.gz --x64 --publish always
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
