@@ -348,7 +348,7 @@ let gameWindow = null;
 const createWindow = () => {
   gameWindow = new BrowserWindow({
     fullscreen: process.platform !== "darwin" && settings.auto_fullscreen,
-    icon: path.join(__dirname, "../assets/img/icon.ico"),
+    icon: path.join(__dirname, "../assets/img/icon.png"),
     title: "Dawn Client",
     width: 1280,
     height: 720,

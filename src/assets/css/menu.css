@@ -1959,15 +1959,8 @@
     padding-right: 10px;
     padding-top: 3px;
     padding-bottom: 5px;
-    background: rgba(28, 22, 38, .6);
-    color: rgba(230, 224, 245, .7);
     border-radius: 10px;
     transition: all 0.2s ease;
-}
-
-.edit-nickname:hover {
-    color: rgb(230, 224, 245);
-    cursor: pointer;
 }
 
 .nickname-overlay {
@@ -3332,3 +3325,10 @@ button:focus,
     background-position: 50%;
     background-size: 50% 50%;
 }
+.profile-cont .skins .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+

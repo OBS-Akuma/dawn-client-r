@@ -1855,7 +1855,7 @@ class Menu {
   }
 
   async initChangelogs() {
-    const changelogs = await fetch("https://raw.githubusercontent.com/zVipexx/dawn-client/refs/heads/main/changelogs.json").then((res) => res.json())
+    const changelogs = await fetch("https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/changelogs.json").then((res) => res.json())
     const changelogsContent = document.querySelector("#client-changelogs");
 
     changelogsContent.innerHTML = "";
@@ -1899,7 +1899,7 @@ class Menu {
       if (!versionNumber.startsWith("v")) {
         versionNumber = "v" + versionNumber;
       }
-      githubBtn.href = `https://github.com/zVipexx/dawn-client/releases/tag/${versionNumber}`;
+      githubBtn.href = `https://github.com/OBS-Akuma/dawn-client-r/releases/tag/${versionNumber}`;
       githubBtn.innerHTML = '<i class="fab fa-github"></i>';
       githubBtn.title = `View release on GitHub (${versionNumber})`;
 

@@ -3,7 +3,7 @@ const { version } = require("../../package.json");
 
 class DiscordRPC {
   constructor() {
-    this.clientId = "1384959605712355479";
+    this.clientId = "1484274456342954076";
     this.startTimestamp = Date.now();
     this.client = new rpc.Client({ transport: "ipc" });
     this.init();
@@ -34,11 +34,11 @@ class DiscordRPC {
       startTimestamp: this.startTimestamp,
       state: "In the lobby",
       largeImageKey: "dawn",
-      largeImageText: `Dawn Client v${version}`,
+      largeImageText: `Dawn Client fork. v${version}`,
       instance: false,
       buttons: [
         { label: "Discord", url: "https://discord.gg/VsMEQ3HWs2" },
-        { label: "Download", url: "https://github.com/zVipexx/dawn-client" },
+        { label: "Download", url: "https://github.com/OBS-Akuma/dawn-client-r" },
       ],
     };
   }

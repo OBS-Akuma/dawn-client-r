@@ -65,6 +65,7 @@
     "discord_rpc": true,
     "css_link": "",
     "css_enabled": false,
+    "hide_real_badges": false,
     "advanced_css": "",
     "in_process_gpu": false,
     "show_installable": false,

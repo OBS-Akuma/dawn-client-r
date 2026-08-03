@@ -7,8 +7,8 @@ const githubBase = "https://raw.githubusercontent.com/imnotkoolkid/KCH/main/data
 
 const dataUrls = {
   css: `${githubBase}/css.json`,
-  cssExtra: "https://raw.githubusercontent.com/zVipexx/dawn-client/refs/heads/main/css.json",
-  maps: "https://raw.githubusercontent.com/zVipexx/dawn-client/refs/heads/main/maps.json",
+  cssExtra: "https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/src/assets/json/css.json",
+  maps: "https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/src/assets/json/maps.json",
   skins: `${githubBase}/skins.json`,
   sounds: `${githubBase}/sounds.json`,
   textures: `${githubBase}/texture.json`,

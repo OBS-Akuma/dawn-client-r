@@ -79,10 +79,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   const fetchAll = async () => {
     const [customizations, clan] = await Promise.all([
       fetch(
-        "https://raw.githubusercontent.com/zVipexx/dawn-client/refs/heads/main/badges.json"
+        "https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/src/assets/json/badges.json"
       ).then((r) => r.json()),
       fetch(
-        "https://raw.githubusercontent.com/zVipexx/dawn-client/refs/heads/main/clans.json"
+        "https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/src/assets/json/clans.json"
       ).then((r) => r.json()),
     ])
 
@@ -134,7 +134,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       return;
 
     let news = await fetch(
-      "https://raw.githubusercontent.com/zVipexx/dawn-client/refs/heads/main/news.json"
+      "https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/src/assets/json/news.json"
     ).then((r) => r.json());
     if (!news.length) return;
 
@@ -919,6 +919,8 @@ window.addEventListener("DOMContentLoaded", async () => {
         styles.push("#region { display: none !important; }");
       if (!settings.info_version)
         styles.push("#version { display: none !important; }");
+      if (!settings.hide_real_badges)
+        styles.push(".role-badge.painted { display: none !important; }");
       if (!settings.info_triangles)
         styles.push("#triangles { display: none !important; }");
       if (!settings.info_fpsavg)
@@ -957,6 +959,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         "lobby_keybind_reminder",
         "info_region",
         "info_version",
+        "hide_real_badges",
         "info_triangles",
         "info_fpsavg",
         "info_fps",
@@ -3110,86 +3113,227 @@ window.addEventListener("DOMContentLoaded", async () => {
     const settings = ipcRenderer.sendSync("get-settings");
 
     const addNicknameButton = () => {
-      const profile = document.querySelector(".tab-content > .profile-cont > .profile");
-      const shortId = profile.querySelector(".card-profile .copy-cont .value")?.textContent.trim().split("#")[1];
-      if (!profile || !shortId) return;
-      const nicknameDiv = document.createElement("div");
-      nicknameDiv.className = "edit-nickname";
-      nicknameDiv.innerHTML = '<i class="fas fa-pen-to-square"></i> Edit Nickname';
-      nicknameDiv.addEventListener("click", (e) => {
-        const nickname = profile.querySelector(".nickname");
+  const profile = document.querySelector(".tab-content > .profile-cont > .profile");
+  const shortId = profile.querySelector(".card-profile .copy-cont .value")?.textContent.trim().split("#")[1];
+  if (!profile || !shortId) return;
 
-        const overlay = document.createElement("div");
-        overlay.className = "nickname-overlay";
-
-        const modal = document.createElement("div");
-        modal.className = "nickname-modal";
-
-        const header = document.createElement("h2");
-        header.textContent = "CHANGE NICKNAME";
-        header.className = "nickname-header";
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.className = "nickname-input";
-        input.maxLength = 20;
-
-        const applyBtn = document.createElement("button");
-        applyBtn.innerHTML = `APPLY<span style="font-size:0.65em;font-weight:normal;opacity:0.75;line-height:1.2;">Reloads Client</span>`;
-        applyBtn.className = "nickname-apply-btn";
-
-        const nicknames = JSON.parse(localStorage.getItem("nicknames") || "{}");
-        const existingEntry = nicknames[shortId];
-        const rawUsername = profile.querySelector(".card-profile .copy-cont .value")?.textContent.trim();
-        const originalName = existingEntry?.original || rawUsername?.split("#")[0].trim() || nickname.textContent.trim();
-        input.placeholder = originalName;
-
-        const closeModal = () => {
-          overlay.classList.remove("visible");
-          overlay.addEventListener("transitionend", () => {
-            overlay.remove();
-          }, { once: true });
-        };
-
-        const resetNickname = () => {
-          delete nicknames[shortId];
-          localStorage.setItem("nicknames", JSON.stringify(nicknames));
-          closeModal();
-          window.location.reload();
-        };
-
-        applyBtn.addEventListener("click", () => {
-          const newName = input.value.trim();
-          if (!newName) {
-            resetNickname();
-            return;
-          }
-          nicknames[shortId] = { original: originalName, nickname: newName };
-          localStorage.setItem("nicknames", JSON.stringify(nicknames));
-          closeModal();
-          window.location.reload();
-        });
-
-        const closeBtn = document.createElement("button");
-        closeBtn.className = "nickname-close-btn";
-        closeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="svg-icon svg-icon--__close__"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/img/icons.8d8d28b5.svg#__close__"></use></svg>`;
-
-        closeBtn.addEventListener("click", closeModal);
-        overlay.addEventListener("click", (e) => {
-          if (e.target === overlay) closeModal();
-        });
-
-        modal.appendChild(closeBtn);
-        modal.appendChild(header);
-        modal.appendChild(input);
-        modal.appendChild(applyBtn);
-        overlay.appendChild(modal);
-        document.querySelector("#app").appendChild(overlay);
-        requestAnimationFrame(() => overlay.classList.add("visible"));
-        input.focus();
-      });
-      profile.appendChild(nicknameDiv);
+  const nicknameDiv = document.createElement("div");
+  nicknameDiv.className = "edit-nickname";
+  
+  // Create button with the new style (smaller)
+  const button = document.createElement("button");
+  button.className = "button rectangle";
+  button.setAttribute("data-v-02ffe5dc", "");
+  button.setAttribute("data-v-42cb6bf1", "");
+  button.id = "edit-nickname-btn";
+  button.style.cssText = "background-color: var(--blue-4); --hover-color:var(--blue-5); --top:var(--blue-5); --bottom:var(--blue-6); padding: 4px 12px; font-size: 12px; min-height: 28px;";
+  
+  // Add triangle
+  const triangle = document.createElement("div");
+  triangle.className = "triangle";
+  triangle.setAttribute("data-v-02ffe5dc", "");
+  
+  // Add text with SVG icon
+  const text = document.createElement("div");
+  text.className = "text";
+  text.setAttribute("data-v-02ffe5dc", "");
+  text.innerHTML = `
+    <svg fill="none" viewBox="0 0 25 26" id="__edit__" style="width: 12px; height: 12px; margin-right: 4px; vertical-align: middle;">
+      <g clip-path="url(#__edit___clip0)">
+        <path d="M5.897 18.962l-.717 5.8a1.43 1.43 0 0 0 1.563 1.582c.1 0 .2-.01.297-.031l5.56-1.911 9.794-12.048-6.745-5.45-9.752 12.058zM25.26 6.535L20.757 2.89a1.438 1.438 0 0 0-2.017.212l-2.027 2.503 6.74 5.458 2.027-2.504a1.436 1.436 0 0 0-.22-2.023z" fill="#202639"/>
+        <path d="M3.372 17.616l-.717 5.802a1.43 1.43 0 0 0 1.562 1.581c.1 0 .2-.01.297-.031l5.56-1.911 9.795-12.048-6.746-5.45-9.751 12.057zM22.734 5.19l-4.503-3.646a1.437 1.437 0 0 0-2.016.212l-2.028 2.503 6.74 5.457 2.027-2.503a1.44 1.44 0 0 0-.22-2.023z" fill="#FFB914"/>
+      </g>
+    </svg>
+    EDIT
+  `;
+  
+  // Add border divs
+  const wrapper = document.createElement("div");
+  wrapper.className = "WmWMwnwN";
+  wrapper.setAttribute("data-v-02ffe5dc", "");
+  
+  const borderTop = document.createElement("div");
+  borderTop.className = "border-top border";
+  borderTop.setAttribute("data-v-02ffe5dc", "");
+  
+  const borderBottom = document.createElement("div");
+  borderBottom.className = "border-bottom border";
+  borderBottom.setAttribute("data-v-02ffe5dc", "");
+  
+  wrapper.appendChild(borderTop);
+  wrapper.appendChild(borderBottom);
+  
+  button.appendChild(triangle);
+  button.appendChild(text);
+  button.appendChild(wrapper);
+  nicknameDiv.appendChild(button);
+  
+  // Add click event to the button
+  button.addEventListener("click", (e) => {
+    const nickname = profile.querySelector(".nickname");
+    
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.className = "nickname-overlay";
+    
+    // Create container card
+    const container = document.createElement("div");
+    container.className = "container-card";
+    container.setAttribute("data-v-a1eaaeac", "");
+    container.style.cssText = "padding: 2rem; background: var(--WwnNMWwm-1); border: 3px solid rgb(3, 4, 5); border-radius: 1.25rem;";
+    
+    // Close button
+    const closeDiv = document.createElement("div");
+    closeDiv.className = "close";
+    closeDiv.setAttribute("data-v-a1eaaeac", "");
+    closeDiv.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" class="close-icon svg-icon svg-icon--__close__" data-v-2b44d870="" data-v-a1eaaeac="">
+        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/img/icons.3f174ec9.svg#__close__"></use>
+      </svg>
+    `;
+    
+    // Edit name container
+    const editNameCont = document.createElement("div");
+    editNameCont.className = "edit-name-cont";
+    editNameCont.setAttribute("data-v-ef09383c", "");
+    editNameCont.setAttribute("data-v-a1eaaeac", "");
+    
+    // Header
+    const header = document.createElement("div");
+    header.className = "head text-1";
+    header.setAttribute("data-v-ef09383c", "");
+    header.setAttribute("data-v-a1eaaeac", "");
+    header.textContent = "CHANGE NICKNAME";
+    
+    // Description
+    const description = document.createElement("div");
+    description.className = "description";
+    description.setAttribute("data-v-ef09383c", "");
+    description.setAttribute("data-v-a1eaaeac", "");
+    
+    const nicknames = JSON.parse(localStorage.getItem("nicknames") || "{}");
+    const existingEntry = nicknames[shortId];
+    const rawUsername = profile.querySelector(".card-profile .copy-cont .value")?.textContent.trim();
+    const originalName = existingEntry?.original || rawUsername?.split("#")[0].trim() || nickname.textContent.trim();
+    description.textContent = "Change this username";
+    
+    // Input wrapper
+    const inputWrapper = document.createElement("label");
+    inputWrapper.className = "wrapper-input input-wrapper";
+    inputWrapper.setAttribute("placeholder", "NICKNAME...");
+    inputWrapper.setAttribute("data-v-094f831c", "");
+    inputWrapper.setAttribute("data-v-ef09383c", "");
+    inputWrapper.setAttribute("data-v-a1eaaeac", "");
+    
+    const input = document.createElement("input");
+    input.className = "input";
+    input.setAttribute("placeholder", "e.g. Newbie");
+    input.setAttribute("data-v-094f831c", "");
+    input.maxLength = 20;
+    input.placeholder = "e.g. Newbie";
+    
+    inputWrapper.appendChild(input);
+    
+    // Buttons container
+    const btnsDiv = document.createElement("div");
+    btnsDiv.className = "btns";
+    btnsDiv.setAttribute("data-v-ef09383c", "");
+    btnsDiv.setAttribute("data-v-a1eaaeac", "");
+    
+    // Apply button
+    const applyBtn = document.createElement("button");
+    applyBtn.className = "button send rectangle";
+    applyBtn.setAttribute("data-v-02ffe5dc", "");
+    applyBtn.setAttribute("data-v-ef09383c", "");
+    applyBtn.setAttribute("data-v-a1eaaeac", "");
+    applyBtn.style.cssText = "background-color: var(--blue-4); --hover-color:var(--blue-5); --top:var(--blue-5); --bottom:var(--blue-6);";
+    
+    const btnTriangle = document.createElement("div");
+    btnTriangle.className = "triangle";
+    btnTriangle.setAttribute("data-v-02ffe5dc", "");
+    
+    const btnText = document.createElement("div");
+    btnText.className = "text";
+    btnText.setAttribute("data-v-02ffe5dc", "");
+    btnText.textContent = "Change";
+    
+    const btnWrapper = document.createElement("div");
+    btnWrapper.className = "WmWMwnwN";
+    btnWrapper.setAttribute("data-v-02ffe5dc", "");
+    
+    const btnBorderTop = document.createElement("div");
+    btnBorderTop.className = "border-top border";
+    btnBorderTop.setAttribute("data-v-02ffe5dc", "");
+    
+    const btnBorderBottom = document.createElement("div");
+    btnBorderBottom.className = "border-bottom border";
+    btnBorderBottom.setAttribute("data-v-02ffe5dc", "");
+    
+    btnWrapper.appendChild(btnBorderTop);
+    btnWrapper.appendChild(btnBorderBottom);
+    
+    applyBtn.appendChild(btnTriangle);
+    applyBtn.appendChild(btnText);
+    applyBtn.appendChild(btnWrapper);
+    
+    btnsDiv.appendChild(applyBtn);
+    
+    // Assemble edit name container
+    editNameCont.appendChild(header);
+    editNameCont.appendChild(description);
+    editNameCont.appendChild(inputWrapper);
+    editNameCont.appendChild(btnsDiv);
+    
+    // Assemble container
+    container.appendChild(closeDiv);
+    container.appendChild(editNameCont);
+    overlay.appendChild(container);
+    
+    // Append to app
+    document.querySelector("#app").appendChild(overlay);
+    
+    // Close modal function
+    const closeModal = () => {
+      overlay.classList.remove("visible");
+      overlay.addEventListener("transitionend", () => {
+        overlay.remove();
+      }, { once: true });
     };
+    
+    const resetNickname = () => {
+      delete nicknames[shortId];
+      localStorage.setItem("nicknames", JSON.stringify(nicknames));
+      closeModal();
+      window.location.reload();
+    };
+    
+    // Apply button click handler
+    applyBtn.addEventListener("click", () => {
+      const newName = input.value.trim();
+      if (!newName) {
+        resetNickname();
+        return;
+      }
+      nicknames[shortId] = { original: originalName, nickname: newName };
+      localStorage.setItem("nicknames", JSON.stringify(nicknames));
+      closeModal();
+      window.location.reload();
+    });
+    
+    // Close handlers
+    closeDiv.addEventListener("click", closeModal);
+    closeDiv.style.cursor = "pointer";
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+    
+    // Show with animation
+    requestAnimationFrame(() => overlay.classList.add("visible"));
+    input.focus();
+  });
+  
+  profile.appendChild(nicknameDiv);
+};
 
     const applyCardChanges = () => {
       const profile = document.querySelector(".tab-content > .profile-cont > .profile");
@@ -5413,159 +5557,192 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   };
 
-  const PRICE_SHEET_URL = "https://opensheet.elk.sh/1pxMSoaSo8FYv-OIJ26HpSj8EDy7EDRmatHyQW24o6E4/Sorted+View";
+const PRICE_SHEET_URL = "https://opensheet.elk.sh/1pxMSoaSo8FYv-OIJ26HpSj8EDy7EDRmatHyQW24o6E4/Sorted+View";
 
-  let priceMap = null;
-  let priceMapPromise = null;
-  let tradeObserver = null;
-  let tradeDebounceTimer = null;
+let priceMap = null;
+let priceMapPromise = null;
+let tradeObserver = null;
+let tradeDebounceTimer = null;
 
-  function parseValue(raw) {
-    if (raw == null) return 0;
-    const s = String(raw).trim();
-    if (!s || s.toUpperCase() === "TBD" || s.toLowerCase().includes("owners price")) return 0;
-    const num = parseFloat(s.replace(/[, ]/g, ""));
-    return isNaN(num) ? 0 : num;
+function parseValue(raw) {
+  if (raw == null) return 0;
+  const s = String(raw).trim();
+  if (!s || s.toUpperCase() === "TBD" || s.toLowerCase().includes("owners price")) return 0;
+  const num = parseFloat(s.replace(/[, ]/g, ""));
+  return isNaN(num) ? 0 : num;
+}
+
+async function loadPriceMap() {
+  if (priceMap) return priceMap;
+  if (!priceMapPromise) {
+    priceMapPromise = fetch(PRICE_SHEET_URL)
+      .then(res => res.json())
+      .then(rows => {
+        const map = new Map();
+        for (const row of rows) {
+          if (!row || !row["Skin Name"]) continue;
+          const name = row["Skin Name"].trim().toLowerCase();
+          const value = parseValue(row["Base Value"]);
+          if (!map.has(name)) map.set(name, value);
+        }
+        priceMap = map;
+        return map;
+      })
+      .catch(err => {
+        console.error("Failed to load price sheet:", err);
+        priceMap = new Map();
+        return priceMap;
+      });
   }
+  return priceMapPromise;
+}
 
-  async function loadPriceMap() {
-    if (priceMap) return priceMap;
-    if (!priceMapPromise) {
-      priceMapPromise = fetch(PRICE_SHEET_URL)
-        .then(res => res.json())
-        .then(rows => {
-          const map = new Map();
-          for (const row of rows) {
-            if (!row || !row["Skin Name"]) continue;
-            const name = row["Skin Name"].trim().toLowerCase();
-            const value = parseValue(row["Base Value"]);
-            if (!map.has(name)) map.set(name, value);
-          }
-          priceMap = map;
-          return map;
-        })
-        .catch(err => {
-          console.error("Failed to load price sheet:", err);
-          priceMap = new Map();
-          return priceMap;
-        });
-    }
-    return priceMapPromise;
-  }
+function getSkinValue(name) {
+  if (!priceMap) return 0;
+  return priceMap.get(name.trim().toLowerCase()) || 0;
+}
 
-  function getSkinValue(name) {
-    if (!priceMap) return 0;
-    return priceMap.get(name.trim().toLowerCase()) || 0;
-  }
+function readOfferPanel(panelEl) {
+  let total = 0;
 
-  function readOfferPanel(panelEl) {
-    let total = 0;
+  panelEl.querySelectorAll(".offer-item").forEach(itemEl => {
+    const nameEl = itemEl.querySelector(".oi-name");
+    const qtyEl = itemEl.querySelector(".oi-qty");
+    if (!nameEl) return;
 
-    panelEl.querySelectorAll(".offer-item").forEach(itemEl => {
-      const nameEl = itemEl.querySelector(".oi-name");
-      const qtyEl = itemEl.querySelector(".oi-qty");
-      if (!nameEl) return;
+    const name = nameEl.textContent.trim();
+    const qty = qtyEl ? parseInt(qtyEl.textContent.trim(), 10) || 1 : 1;
+    const unitValue = getSkinValue(name);
+    total += unitValue * qty;
+  });
 
-      const name = nameEl.textContent.trim();
-      const qty = qtyEl ? parseInt(qtyEl.textContent.trim(), 10) || 1 : 1;
-      const unitValue = getSkinValue(name);
-      total += unitValue * qty;
-    });
+  return total;
+}
 
-    return total;
-  }
+function formatValue(n) {
+  const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+  return sign + Math.round(Math.abs(n)).toLocaleString();
+}
 
-  function formatValue(n) {
-    const sign = n > 0 ? "+" : n < 0 ? "-" : "";
-    return sign + Math.round(Math.abs(n)).toLocaleString();
-  }
+function renderPanelTotal(panelEl, total) {
+  // Remove any existing custom value elements we've added
+  const existingValueEls = panelEl.querySelectorAll(".custom-value-display");
+  existingValueEls.forEach(el => el.remove());
 
-  function renderPanelTotal(panelEl, total) {
-    let totalEl = panelEl.querySelector(".oi-total-value");
-    if (!totalEl) {
-      totalEl = document.createElement("span");
-      totalEl.className = "oi-total-value";
-      const header = panelEl.querySelector(".offer-header");
-      if (header) header.appendChild(totalEl);
-    }
-    totalEl.textContent = `Value: ${Math.round(total).toLocaleString()}`;
-  }
-
-  function getOrCreateDiffBadge() {
-    let badge = document.getElementById("trade-diff-badge");
-    if (badge) return badge;
-
-    const tradeWindow = document.querySelector(".trade-window");
-    if (!tradeWindow) return null;
-
-    badge = document.createElement("div");
-    badge.id = "trade-diff-badge";
-
-    const computedPosition = getComputedStyle(tradeWindow).position;
-    if (computedPosition === "static") {
-      tradeWindow.style.position = "relative";
-    }
-
-    tradeWindow.appendChild(badge);
-    return badge;
-  }
-
-  function renderDiffBadge(diff) {
-    const badge = getOrCreateDiffBadge();
-    if (!badge) return;
-
-    badge.classList.remove("positive", "negative", "even");
-
-    if (diff > 0) {
-      badge.classList.add("positive");
-      badge.textContent = `${formatValue(diff)}`;
-    } else if (diff < 0) {
-      badge.classList.add("negative");
-      badge.textContent = `${formatValue(diff)}`;
+  // Find the container-card or the name element
+  const containerCard = panelEl.closest(".container-card");
+  
+  if (containerCard) {
+    // Find the owned element inside the name div
+    const ownedEl = containerCard.querySelector(".name .owned");
+    
+    if (ownedEl) {
+      // Create the new value element matching the owned class structure
+      const valueEl = document.createElement("div");
+      valueEl.className = "owned custom-value-display";
+      valueEl.textContent = `Value: ${Math.round(total).toLocaleString()}`;
+      
+      // Add data attributes to match the original
+      valueEl.setAttribute("data-v-47f67e2c", "");
+      valueEl.setAttribute("data-v-a1eaaeac", "");
+      
+      // Insert it after the original owned element
+      ownedEl.parentNode.insertBefore(valueEl, ownedEl.nextSibling);
+      
+      // Add a small margin or spacing to separate them
+      if (!valueEl.style.marginTop) {
+        valueEl.style.marginTop = "4px";
+      }
     } else {
-      badge.classList.add("even");
-      badge.textContent = "0";
-    }
-  }
-
-  async function handleTrade() {
-    await loadPriceMap();
-
-    const panels = document.querySelectorAll(".offer-panel");
-    let theirTotal = null;
-    let yourTotal = null;
-
-    panels.forEach((panel, idx) => {
-      const total = readOfferPanel(panel);
-      renderPanelTotal(panel, total);
-
-      if (idx === 0) theirTotal = total;
-      else if (idx === 1) yourTotal = total;
-    });
-
-    const diff = (theirTotal ?? 0) - (yourTotal ?? 0);
-    renderDiffBadge(diff);
-
-    if (!tradeObserver) {
-      const tradeWindow = document.querySelector(".trade-window");
-      if (tradeWindow) {
-        tradeObserver = new MutationObserver(() => {
-          clearTimeout(tradeDebounceTimer);
-          tradeDebounceTimer = setTimeout(() => {
-            handleTrade();
-          }, 100);
-        });
-
-        const grids = tradeWindow.querySelectorAll(".offer-grid");
-        grids.forEach(grid => {
-          tradeObserver.observe(grid, { childList: true, subtree: true });
-        });
+      // Fallback: if no owned element found, create one in the name div
+      const nameEl = containerCard.querySelector(".name");
+      if (nameEl) {
+        const valueEl = document.createElement("div");
+        valueEl.className = "owned custom-value-display";
+        valueEl.textContent = `Value: ${Math.round(total).toLocaleString()}`;
+        valueEl.setAttribute("data-v-47f67e2c", "");
+        valueEl.setAttribute("data-v-a1eaaeac", "");
+        nameEl.appendChild(valueEl);
       }
     }
+  }
+}
 
-    return diff;
+function getOrCreateDiffBadge() {
+  let badge = document.getElementById("trade-diff-badge");
+  if (badge) return badge;
+
+  const tradeWindow = document.querySelector(".trade-window");
+  if (!tradeWindow) return null;
+
+  badge = document.createElement("div");
+  badge.id = "trade-diff-badge";
+
+  const computedPosition = getComputedStyle(tradeWindow).position;
+  if (computedPosition === "static") {
+    tradeWindow.style.position = "relative";
   }
 
+  tradeWindow.appendChild(badge);
+  return badge;
+}
+
+function renderDiffBadge(diff) {
+  const badge = getOrCreateDiffBadge();
+  if (!badge) return;
+
+  badge.classList.remove("positive", "negative", "even");
+
+  if (diff > 0) {
+    badge.classList.add("positive");
+    badge.textContent = `${formatValue(diff)}`;
+  } else if (diff < 0) {
+    badge.classList.add("negative");
+    badge.textContent = `${formatValue(diff)}`;
+  } else {
+    badge.classList.add("even");
+    badge.textContent = "0";
+  }
+}
+
+async function handleTrade() {
+  await loadPriceMap();
+
+  const panels = document.querySelectorAll(".offer-panel");
+  let theirTotal = null;
+  let yourTotal = null;
+
+  panels.forEach((panel, idx) => {
+    const total = readOfferPanel(panel);
+    renderPanelTotal(panel, total);
+
+    if (idx === 0) theirTotal = total;
+    else if (idx === 1) yourTotal = total;
+  });
+
+  const diff = (theirTotal ?? 0) - (yourTotal ?? 0);
+  renderDiffBadge(diff);
+
+  if (!tradeObserver) {
+    const tradeWindow = document.querySelector(".trade-window");
+    if (tradeWindow) {
+      tradeObserver = new MutationObserver(() => {
+        clearTimeout(tradeDebounceTimer);
+        tradeDebounceTimer = setTimeout(() => {
+          handleTrade();
+        }, 100);
+      });
+
+      const grids = tradeWindow.querySelectorAll(".offer-grid");
+      grids.forEach(grid => {
+        tradeObserver.observe(grid, { childList: true, subtree: true });
+      });
+    }
+  }
+
+  return diff;
+}
+  
   observeForElement(".trade-overlay", handleTrade);
 
   function getSkinValue(name) {
@@ -5979,126 +6156,141 @@ window.addEventListener("DOMContentLoaded", async () => {
   };
 
   const handleInspect = () => {
-    function getInspectItemName() {
-      const nameEl = document.querySelector("#inspect-modal .name");
-      if (!nameEl) return null;
+  function getInspectItemName() {
+    const nameEl = document.querySelector("#inspect-modal .name");
+    if (!nameEl) return null;
 
-      const clone = nameEl.cloneNode(true);
-      const ownedEl = clone.querySelector(".owned");
-      if (ownedEl) ownedEl.remove();
+    const clone = nameEl.cloneNode(true);
+    const ownedEl = clone.querySelector(".owned");
+    if (ownedEl) ownedEl.remove();
 
-      let text = clone.textContent.trim();
-      text = text.replace(/^Inspect:\s*/i, "").trim();
-      return text || null;
-    }
+    let text = clone.textContent.trim();
+    text = text.replace(/^Inspect:\s*/i, "").trim();
+    return text || null;
+  }
 
-    function getOrCreateInspectValueLabel() {
-      let el = document.querySelector("#inspect-modal .inspect-value");
-      if (el) return el;
+  function getOrCreateInspectValueLabel() {
+    const existingEl = document.querySelector("#inspect-modal .inspect-value");
+    if (existingEl) existingEl.remove();
 
-      const nameEl = document.querySelector("#inspect-modal .name");
-      if (!nameEl) return null;
+    const nameEl = document.querySelector("#inspect-modal .name");
+    if (!nameEl) return null;
 
-      el = document.createElement("div");
-      el.className = "oi-total-value";
-      el.style.top = "8px";
-      el.style.position = "absolute";
-      el.style.zIndex = "1";
-      nameEl.insertAdjacentElement("afterend", el);
-      return el;
-    }
+    const ownedEl = nameEl.querySelector(".owned");
+    if (!ownedEl) return null;
 
-    async function updateInspectValue() {
-      const name = getInspectItemName();
-      if (!name) return;
+    const el = document.createElement("div");
+    el.className = "owned inspect-value";
+    el.setAttribute("data-v-47f67e2c", "");
+    el.setAttribute("data-v-a1eaaeac", "");
+    el.style.marginTop = "2.5rem";
+    
+    ownedEl.after(el);
+    return el;
+  }
 
-      await loadPriceMap();
+  async function updateInspectValue() {
+    const name = getInspectItemName();
+    if (!name) return;
 
-      const value = getSkinValue(name);
-      const label = getOrCreateInspectValueLabel();
-      if (!label) return;
+    await loadPriceMap();
 
-      label.textContent = `Value: ${Math.round(value).toLocaleString()}`;
-    }
+    const value = getSkinValue(name);
+    const label = getOrCreateInspectValueLabel();
+    if (!label) return;
 
-    let loading = null;
-    let polling = null;
+    label.textContent = `Value: ${Math.round(value).toLocaleString()}`;
+  }
 
-    const run = () => {
-      clearTimeout(loading);
-      clearTimeout(polling);
+  let loading = null;
+  let polling = null;
 
-      loading = setTimeout(() => {
-        const tryApply = () => {
-          const nameEl = document.querySelector("#inspect-modal .name");
-          if (nameEl) {
-            updateInspectValue();
-          } else {
-            polling = setTimeout(tryApply, 10);
-          }
-        };
-        tryApply();
-      }, 0);
-    };
+  const run = () => {
+    clearTimeout(loading);
+    clearTimeout(polling);
 
-    run();
+    loading = setTimeout(() => {
+      const tryApply = () => {
+        const nameEl = document.querySelector("#inspect-modal .name");
+        if (nameEl) {
+          updateInspectValue();
+        } else {
+          polling = setTimeout(tryApply, 10);
+        }
+      };
+      tryApply();
+    }, 0);
   };
 
-  observeForElement("#inspect-modal", handleInspect);
+  run();
+};
 
-  window.customNotification = (data) => {
-    const notifElement = document.createElement("div");
-    notifElement.classList.add("vue-notification-wrapper");
-    notifElement.style =
-      "transition-timing-function: ease; transition-delay: 0s; transition-property: all;";
-    notifElement.innerHTML = `
-    <div
-      style="
-        display: flex;
-        align-items: center;
-        padding: .9rem 1.1rem;
-        margin-bottom: .5rem;
-        color: var(--white);
-        cursor: pointer;
-        box-shadow: 0 0 0.7rem rgba(0,0,0,.25);
-        border-radius: .2rem;
-        background: linear-gradient(262.54deg,#202639 9.46%,#223163 100.16%);
-        margin-left: 1rem;
-        border: solid .15rem #ffb914;
-        font-family: Exo\ 2;" class="alert-default"
-    > ${data.icon
-        ? `
-        <img
-          src="${data.icon}"
-          style="
-            min-width: 2rem;
-            height: 2rem;
-            margin-right: .9rem;"
-        />`
-        : ""
-      }
-      <span style="font-size: 1rem; font-weight: 600; text-align: left;" class="text">${data.message
-      }</span>
-    </div>`;
+observeForElement("#inspect-modal", handleInspect);
 
-    notifElement.addEventListener("click", () => {
-      notifElement.style.transition = "0.3s ease"
-      notifElement.style.opacity = "0"
-      setTimeout(() => {
-        notifElement.remove();
-      }, 300)
-    })
+window.customNotification = (data) => {
+  const notifElement = document.createElement("div");
+  notifElement.className = "owned";
+  notifElement.setAttribute("data-v-47f67e2c", "");
+  notifElement.setAttribute("data-v-a1eaaeac", "");
+  notifElement.style.cssText = `
+    right: 1rem;
+    top: auto;
+    bottom: auto;
+    margin-top: 2.5rem;
+    height: auto;
+    display: flex;
+    padding: 0.3rem 0.7rem;
+    border-radius: 1rem;
+    background: rgba(0,0,0,.25);
+    font-weight: 600;
+    color: #fff;
+    align-items: center;
+    position: relative;
+    text-shadow: -1px -1px 0 #0f0f0f, 1px -1px 0 #0f0f0f, -1px 1px 0 #0f0f0f, 1px 1px 0 #0f0f0f, 0 0.13rem 1px rgba(0,0,0,.486);
+    cursor: pointer;
+    gap: 0.5rem;
+    z-index: 10;
+  `;
 
-    document
-      .getElementsByClassName("vue-notification-group")[0]
-      .children[0].appendChild(notifElement);
+  if (data.icon) {
+    const iconImg = document.createElement("img");
+    iconImg.src = data.icon;
+    iconImg.style.cssText = `
+      min-width: 1.2rem;
+      height: 1.2rem;
+    `;
+    notifElement.appendChild(iconImg);
+  }
 
+  const textSpan = document.createElement("span");
+  textSpan.style.cssText = `
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: left;
+    font-family: Exo 2, sans-serif;
+  `;
+  textSpan.textContent = data.message;
+  notifElement.appendChild(textSpan);
+
+  notifElement.addEventListener("click", () => {
+    notifElement.style.transition = "0.3s ease";
+    notifElement.style.opacity = "0";
     setTimeout(() => {
-      try {
-        notifElement.remove();
-      } catch { }
-    }, 5000);
-  };
+      notifElement.remove();
+    }, 300);
+  });
+
+  const ownedEl = document.querySelector("#inspect-modal .name .owned");
+  if (ownedEl) {
+    ownedEl.after(notifElement);
+  }
+
+  setTimeout(() => {
+    try {
+      notifElement.remove();
+    } catch { }
+  }, 5000);
+};
 
   ipcRenderer.on("notification", (_, data) => customNotification(data));
 
