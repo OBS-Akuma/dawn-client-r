@@ -1,4 +1,4 @@
-appId: com.zvipexx.dawn
+appId: com.stinkyzvipexx.dawn
 productName: Dawn Client
 directories:
   output: "build"
@@ -27,6 +27,6 @@ linux:
 
 publish:
   - provider: github
-    owner: zVipexx
-    repo: dawn-client
+    owner: OBS-Akuma
+    repo: dawn-client-r
     releaseType: release
