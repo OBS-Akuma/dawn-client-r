@@ -5,5 +5,12 @@
     "changelogs": [
       "Fork, added back glbs in file, added halloween to the auto opener, sorted the Files a bit better, Changed the stile of Vaule on item view, make the edit nickname button a kirka styled btn + fixed the pop-up ui, Fixed the skins tab ui, fixed the friends list ui by making it bit bigger, renamed Info overlays to hide, added a hide real badges Switch to UI > hide"
     ]
+  },
+  {
+    "version": "0.0.2",
+    "date": "8/3/2026",
+    "changelogs": [
+      "friends css added"
+    ]
   }
 ]
