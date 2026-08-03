@@ -1,0 +1,26 @@
+[
+  {
+    "clan": "yawn",
+    "gradient": {
+      "rot": "90deg",
+      "stops": [
+        "#b5c6e0 0%",
+        "#ebf4f5 80%",
+        "#b5c6e0 100%"
+      ]
+    },
+    "animated": true
+  },
+  {
+    "clan": "vink",
+    "gradient": {
+      "rot": "90deg",
+      "stops": [
+        "#0a1628 0%",
+        "#1a3a5c 50%",
+        "#0d1f3c 100%"
+      ]
+    },
+    "animated": true
+  }
+]
