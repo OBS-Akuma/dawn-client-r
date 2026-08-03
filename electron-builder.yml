@@ -1,4 +1,4 @@
- com.stinkyzvipexx.dawn
+appid: com.stinkyzvipexx.dawn
 productName: Dawn Client
 directories:
   output: "build"
