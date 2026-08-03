@@ -1855,7 +1855,7 @@ class Menu {
   }
 
   async initChangelogs() {
-    const changelogs = await fetch("https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/changelogs.json").then((res) => res.json())
+    const changelogs = await fetch("https://raw.githubusercontent.com/OBS-Akuma/dawn-client-r/refs/heads/main/src/assets/json/changelogs.json").then((res) => res.json())
     const changelogsContent = document.querySelector("#client-changelogs");
 
     changelogsContent.innerHTML = "";
