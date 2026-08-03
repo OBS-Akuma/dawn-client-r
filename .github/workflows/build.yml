@@ -1,46 +1,86 @@
-name: Build
+name: Build and Release
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-
-    permissions:
-      contents: write
-
-    strategy:
-      matrix:
-        os: [macos-15-intel, windows-latest, ubuntu-latest]
-        include:
-          - os: windows-latest
-            arch: x64
-            build_command: npx electron-builder --windows --x64 --publish always "-c.publish.repo=dawn-client"
-          - os: macos-15-intel
-            arch: x64
-            build_command: npx electron-builder --mac dmg --x64 --publish always "-c.publish.repo=dawn-client"
-          - os: ubuntu-latest
-            arch: x64
-            build_command: npx electron-builder --linux --x64 --publish always "-c.publish.repo=dawn-client"
-
+  build-windows:
+    runs-on: windows-latest
+    
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Create Windows ICO from PNG
+      run: |
+        npm install -D png-to-ico
+        npx png-to-ico src/assets/img/icon.png > src/assets/img/icon.ico
+      shell: bash
+      
+    - name: Verify ICO file
+      run: |
+        if (Test-Path src/assets/img/icon.ico) {
+          $fileInfo = Get-Item src/assets/img/icon.ico
+          Write-Host "ICO created: $($fileInfo.Length) bytes :0"
+        } else {
+          Write-Host "ICO not created fuck you i hope you die BUHHH"
+          exit 1
+        }
+      shell: pwsh
+      
+    - name: Build Windows app
+      run: npx electron-builder --windows --x64 --publish always
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
+  build-macos:
+    runs-on: macos-15
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build macOS app
+      run: npx electron-builder --mac dmg --x64 --publish always
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Dependencies
-        run: npm install
-        env:
-          npm_config_arch: x64
-
-      - name: Build and Publish Electron App
-        run: ${{ matrix.build_command }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EP_DRAFT: true
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build Linux app
+      run: npx electron-builder --linux AppImage tar.gz --x64 --publish always
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
