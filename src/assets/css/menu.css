@@ -3331,4 +3331,78 @@ button:focus,
     gap: 10px;
 }
 
+.add-friends {
+  max-width: 400px;
+  width: 100%;
+  margin: 0;
+  margin-right: auto;
+  position: relative;
+}
+
+.add-friends {
+  max-width: 400px;
+  width: 100%;
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  position: relative;
+  left: 0;
+}
+.add-friends .input,
+.add-friends .search-friends,
+.add-friends .player-lookup {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+.add-friends .input .wrapper-input,
+.add-friends .input .wrapper-input input,
+.add-friends .search-input,
+.add-friends .lookup-input {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+.add-friends .input .button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.add-friends .your-id-copy .copy-cont {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.add-friends {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+.add-friends ~ .content[data-v-27bb6a1a],
+.add-friends + .content[data-v-27bb6a1a] {
+  flex: 1;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+
+.parent-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0; 
+
+.add-friends {
+  flex: 0 0 auto; 
+  margin-right: 0 !important;
+}
+
+.content[data-v-27bb6a1a] {
+  flex: 1; 
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+.button.btn[data-v-02ffe5dc] {
+    width: 170px; 
+    padding-left: 12px;
+    padding-right: 12px;
+}
 
